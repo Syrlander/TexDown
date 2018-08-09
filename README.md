@@ -25,3 +25,6 @@ python texdown.py <LIST_OF_MARKDOWN_FILES> -o <OUTPUT_FOLDER>
 ### Far future
 - [ ] Pandoc wrapper
 - [ ] Own markdown parser (rewrite old F# parser)
+
+## Additional notes
+The code is written in Python using the Google docstring style: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
