@@ -17,9 +17,9 @@ python texdown.py <LIST_OF_MARKDOWN_FILES> -o <OUTPUT_FOLDER>
 
 ## TO-DO
 - [ ] LaTeX preprocessing before conversion (replace \bm with \mathbf, since pandoc complains - and any other latex/markdown based problems)
-- [ ] Automatically convert files when changed and save pdf's to specified folder
-  - [ ] Create file/direcotry changes watcher
-- [ ] Refactor argument parser to take in a list of strings instead of FileType, so that validator methods doesn't have to take in arguments of FileType aswell.
+- [x] Automatically convert files when changed and save pdf's to specified folder
+  - [x] Create file/direcotry changes observer
+- [x] Refactor argument parser to take in a list of strings instead of FileType, so that validator methods doesn't have to take in arguments of FileType aswell.
 - [ ] Take in formats like '*.md' for the file list to just find all markdown files in a directory.
 
 ### Far future
