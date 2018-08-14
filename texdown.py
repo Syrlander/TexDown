@@ -2,69 +2,27 @@
 """"Program to simply convert Markdown files with embedded TeX math to pdf's"""
 
 import os
+import sys
 import argparse
 
 from util import fileobserver
-from util import pathformatter
 from util import config
 
-# # Supported markdown file extensions
-# valid_file_extensions = [
-#     'markdown',
-#     'mdown',
-#     'mkdn',
-#     'md',
-#     'mkd',
-#     'mdwn',
-#     'mdtxt',
-#     'mdtext',
-#     'text',
-#     'Rmd'
-# ]
 
+def die(msg):
+    """
+    Prints an exit message, then kills the application
 
-# def validate_file_extensions(files):
-#     """Validates that every file is a markdown file
-    
-#     Throws: ValueError, file with invalid file extension"""
-#     for file in files:
-#         if file.name.split('.')[-1] not in valid_file_extensions:
-#             raise ValueError('Error: Found file with invalid file extensions: \
-#                              {0}'.format(file.name))
+    Args:
+        msg: exit message to print
+    """
+    print(msg)
+    sys.exit()
 
-
-# def validate_folder_existance(folder):
-#     """Validates that a given directory exists
-
-#     Throws: ValueError, folder doesn't exist"""
-#     if folder:
-#         if not os.path.exists(folder) or not os.path.isdir(folder):
-#             raise ValueError('Error: Invalid output folder given: \
-#                              {0}'.format(folder))
-
-
-# def try_convert_files(files, out_folder=os.getcwd()):
-#     """Tries to convert the given files to pdf's, and output them in the 
-#     specified output folder"""
-#     if files:
-#         # Validation
-#         validate_file_extensions(files)
-#         validate_folder_existance(out_folder)
-
-#         # Format the valid output folder
-#         if out_folder[-1] is not '/':
-#             out_folder += '/'
-
-#         # Convert the files
-#         for file in files:
-#             filename = file.name.split('.')[0]
-            
-#             os.system('pandoc {0} -o {1}{2}.pdf'.format(
-#                 file.name, out_folder, filename))
 
 def validate_file(filepath):
     """
-    Validates that a single file exsists and is of a valid file extension
+    Validates that a single file exists and is of a valid file extension
 
     Args:
         filepath: path of file to validate
@@ -72,32 +30,39 @@ def validate_file(filepath):
     Returns:
         True: File is valid
         Flase: File is invalid
-    """
-    retVal = False
-    
+    """    
     if os.path.exists(filepath):
         if os.path.isfile(filepath):
             base = os.path.basename(filepath)
             base_ext = base.split('.')[-1]
             
             if base_ext in config.VALID_FILE_EXTENSIONS:
-                retVal = True
+                return True
 
-    return retVal
+    return False
 
-def try_convert_pandoc(filepath, output="./output/"):
+
+def try_convert_pandoc(filepath, output="./pdf_output/"):
     """
-    Converts a validated markdown file to pdf format using Pandoc
+    Tries to convert a validated markdown file to pdf using Pandoc
 
     Args:
         filepath: path of file to convert
-        output: output folder for pandoc to convert files into (default: './output/')
+        output: output folder for pandoc to convert files into (default: './pdf_output/')
 
     Returns:
         True: Conversion was successful
         False: Conversion failed or another error occured
     """
-    pass
+    filename = os.path.basename(filepath).split('.')[0]
+
+    resp_code = os.system('pandoc {0} -o {1}{2}.pdf'.format(
+        filepath, output, filename))
+
+    if resp_code == 0:
+        return True
+    return False
+
 
 def execute_converter(pargs):
     """
@@ -106,7 +71,37 @@ def execute_converter(pargs):
     Args:
         pargs: parser arguments; the values gotten from the argparse parser
     """
-    pass
+    out_folder = "./pdf_output/"
+    if pargs.output:
+        out_folder = pargs.output
+
+    if not os.path.exists(out_folder):
+        os.mkdir(out_folder)
+
+    def helper_func(file):
+        """Executes the actual conersion of a single file
+        
+        Args:
+            file: file to convert
+        """
+        if validate_file(file):
+            if not try_convert_pandoc(file, out_folder):
+                die("Error: Unable to convert file: {0}".format(file))
+            else:
+                print("Successfully converted file: {0}".format(file))
+        else:
+            die("Error: Invalid filepath: {0}".format(file))
+
+    if pargs.auto:
+        # Auto check for file changes, then convert
+        try:
+            fileobserver.FileObserver(pargs.to_convert, helper_func)
+        except KeyboardInterrupt:
+            die("")
+    else:
+        # Run once
+        for file in pargs.to_convert:
+            helper_func(file)
 
 def main():
     # Create argparser setup

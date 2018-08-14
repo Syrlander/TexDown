@@ -1,19 +1,17 @@
 """Utility to automatically watch for file changes for a specified file or dir
 
-TODO: Add an Enum class to specify different types of file changes; 
+TODO: Possibly add an Enum class to specify different types of file changes; 
 Modified, Created, Deleted and send them as a second argument to 
 the callback function.
 """
 
 import os
-import repeatedtimer
+from util import repeatedtimer
 
 class FileObserver(object):
-    """
-    File changes observer
-    """
+    """File changes observer"""
 
-    def __init__(self, paths, callback, interval=5):
+    def __init__(self, paths, callback, interval=5, execute_once=True):
         """
         paths: List of file paths to observe
         callback: Callback function to call when a file has been changed.
@@ -25,6 +23,7 @@ class FileObserver(object):
         self.stamped = [] # list of tuples containing filepaths and timestamps
         self.callback = callback
         self.interval = interval
+        self.execute_once = execute_once
 
         self._start_observer(paths)
 
@@ -52,6 +51,11 @@ class FileObserver(object):
         # Get initial file timestamps
         self._get_files_to_watch(paths)
         
+        # Ensure that the callback is called atleast once, if flag is set
+        if self.execute_once:
+            for file in paths:
+                self.callback(file)
+
         # Create and start the auto execution of observer function
         repeatedtimer.RepeatedTimer(self.interval, self._check_file_changes)
 
@@ -79,4 +83,3 @@ class FileObserver(object):
             return (file, stamp)
 
         self.stamped = list(map(checker, self.stamped))
-        print(self.stamped)
