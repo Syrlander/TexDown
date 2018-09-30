@@ -21,6 +21,8 @@ python texdown.py <LIST_OF_MARKDOWN_FILES> -o <OUTPUT_FOLDER>
   - [x] Create file/direcotry changes observer
 - [x] Refactor argument parser to take in a list of strings instead of FileType, so that validator methods doesn't have to take in arguments of FileType aswell.
 - [ ] Take in formats like '*.md' for the file list to just find all markdown files in a directory.
+- [ ] Allow for multiple markdown files to be concatenate together into one pdf
+  - [ ] Auto-generate and insert table of contents
 
 ### Far future
 - [ ] Pandoc wrapper
